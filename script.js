@@ -14,22 +14,34 @@ geoSearch.onclick = () => validateGeoForm(geoInput);
 
 function validateLocationForm(search) {
   if (search.value === undefined || search.value === "") {
-    alert("Please enter {city}, {state}, {country}");
+    alert("Please enter {city}, {state}, {country} COMMAS REQUIRED");
   } else {
-    const temp = search.value;
-    const location = temp.replace(/ /g, "");
-    newLocationURL(location);
+    const arr = search.value.split(",");
+    if (arr.length === 2) {
+      arr.push("USA");
+    }
+    // console.log(arr);
+    // newLocationURL(arr);
+    geocoderDirect(arr);
   }
 }
 
 function validateZipForm(search) {
   if (search.value === undefined || search.value === "") {
-    alert("Please enter {zipcode}, {country code}");
+    alert("Please enter {zipcode}, {country code}(optional, US default)");
   } else {
-    const temp = search.value;
-    const location = temp.replace(/,/g, "");
-    const arr = location.split(" ");
-    newZipURL(arr);
+    const temp = search.value.split(",");
+    const arr = [];
+    for (i = 0; i < temp.length; i++) {
+      const str = temp[i].replace(/ /g, "");
+      arr.push(str);
+    }
+    if (arr.length === 1) {
+      arr.push("US");
+    }
+    // console.log(arr);
+    // newZipURL(arr);
+    geocoderZip(arr);
   }
 }
 
@@ -37,39 +49,57 @@ function validateGeoForm(search) {
   if (search.value === undefined || search.value === "") {
     alert("Please enter {latitude}, {longitude}");
   } else {
-    const temp = search.value;
-    const location = temp.replace(/,/g, "");
-    const arr = location.split(" ");
-    newGeoURL(arr);
+    const temp = search.value.split(",");
+    const arr = [];
+    for (i = 0; i < temp.length; i++) {
+      const str = temp[i].replace(/ /g, "");
+      arr.push(str);
+    }
+    // console.log(arr);
+    // newGeoURL(arr);
+    // oneCallURL(arr);
+    geocoderReverse(arr);
   }
 }
 
-function newLocationURL(location) {
-  const address = "http://api.openweathermap.org/data/2.5/weather?q=";
-  const api = "&units=imperial&appid=e768023fab961408a046720d11f66181";
-  const url = address + location + api;
-  getWeather(url);
+function geocoderDirect(arr) {
+  const query = arr.toString();
+  const url = `http://api.openweathermap.org/geo/1.0/direct?q=${query}&appid=e768023fab961408a046720d11f66181`;
+  console.log(url);
+  getLocation(url);
 }
 
-function newZipURL(arr) {
-  if (arr.length === 1) {
-    arr.push("US");
-  }
-  const address = "http://api.openweathermap.org/geo/1.0/zip?zip=";
-  const query = `${arr[0]},${arr[1]}`;
-  const api = "&appid=e768023fab961408a046720d11f66181";
-  const url = address + query + api;
+function geocoderZip(arr) {
+  const query = arr.toString();
+  const url = `http://api.openweathermap.org/geo/1.0/zip?zip=${query}&appid=e768023fab961408a046720d11f66181`;
+  console.log(url);
+  getLocation(url);
+}
+
+function geocoderReverse(arr) {
+  const query = arr.toString();
+  const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${arr[0]}&lon=${arr[1]}&appid=e768023fab961408a046720d11f66181`;
+  console.log(url);
+  getLocation(url);
+}
+
+function oneCallURL(arr) {
+  const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${arr[0]}&lon=${arr[1]}&exclude=hourly,minutely&units=imperial&appid=e768023fab961408a046720d11f66181`;
   console.log(url);
   getWeather(url);
 }
 
-function newGeoURL(arr) {
-  const address = "http://api.openweathermap.org/geo/1.0/reverse?lat=";
-  const query = `${arr[0]}&lon=${arr[1]}`;
-  const api = "&appid=e768023fab961408a046720d11f66181";
-  const url = address + query + api;
-  console.log(url);
-  getWeather(url);
+async function getLocation(url) {
+  try {
+    const response = await fetch(url, {
+      mode: "cors",
+    });
+    const locationData = await response.json();
+    console.log(locationData);
+    // processJSON(weatherData);
+  } catch (error) {
+    alert(error);
+  }
 }
 
 async function getWeather(url) {
@@ -79,36 +109,67 @@ async function getWeather(url) {
     });
     const weatherData = await response.json();
     console.log(weatherData);
-    render(weatherData);
+    // processJSON(weatherData);
   } catch (error) {
     alert(error);
   }
 }
 
-function render(weatherData) {
-  const forecast = document.createElement("div");
-  forecast.classList.add("forecast");
-  const today = document.createTextNode(
-    `${weatherData.name}, 
-    ${weatherData.main.temp} degrees, 
-    ${weatherData.main.humidity}% humidity,
-    ${weatherData.weather[0].description}`
-  );
-  forecast.appendChild(today);
-  output.appendChild(forecast);
+class Forecast {
+  constructor(
+    name,
+    description,
+    feels_like,
+    humidity,
+    temp,
+    temp_min,
+    temp_max,
+    lat,
+    lon
+  ) {
+    this.name = name;
+    this.description = description;
+    this.feels_like = feels_like;
+    this.humidity = humidity;
+    this.temp = temp;
+    this.temp_min = temp_min;
+    this.temp_max = temp_max;
+    this.lat = lat;
+    this.lon = lon;
+  }
 }
 
-// async function getWeather() {
-//   try {
-//     const response = await fetch(
-//       "http://api.openweathermap.org/data/2.5/weather?q=Denver,CO,USA&appid=e768023fab961408a046720d11f66181",
-//       {
-//         mode: "cors",
-//       }
-//     );
-//     const weatherData = await response.json();
-//     console.log(weatherData);
-//   } catch (error) {
-//     alert(error);
-//   }
+function processJSON(weatherData) {
+  const today = new Forecast(
+    weatherData.name,
+    weatherData.weather[0].description,
+    weatherData.main.feels_like,
+    weatherData.main.humidity,
+    weatherData.main.temp,
+    weatherData.main.temp_min,
+    weatherData.main.temp_max,
+    weatherData.coord.lat,
+    weatherData.coord.lon
+  );
+  console.log(today);
+}
+
+// function newLocationURL(arr) {
+//   const query = arr.toString();
+//   const url = `http://api.openweathermap.org/data/2.5/weather?q=${query}&units=imperial&appid=e768023fab961408a046720d11f66181`;
+//   console.log(url);
+//   getWeather(url);
+// }
+
+// function newZipURL(arr) {
+//   const query = arr.toString();
+//   const url = `https://api.openweathermap.org/data/2.5/weather?zip=${query}&units=imperial&appid=e768023fab961408a046720d11f66181`;
+//   console.log(url);
+//   getWeather(url);
+// }
+
+// function newGeoURL(arr) {
+//   const url = `http://api.openweathermap.org/data/2.5/weather?lat=${arr[0]}&lon=${arr[1]}&units=imperial&appid=e768023fab961408a046720d11f66181`;
+//   console.log(url);
+//   getWeather(url);
 // }
