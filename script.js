@@ -1,17 +1,58 @@
+// new object classes
+class Location {
+  constructor(lat, lon, name) {
+    this.lat = lat;
+    this.lon = lon;
+    this.name = name;
+  }
+}
+
+class Current {
+  constructor(description, icon, feels_like, temp, humidity, wind_speed) {
+    this.description = description;
+    this.icon = icon;
+    this.feels_like = feels_like;
+    this.temp = temp;
+    this.humidity = humidity;
+    this.wind_speed = wind_speed;
+  }
+}
+
+class Daily {
+  constructor(
+    description,
+    icon,
+    feels_like,
+    temp,
+    temp_min,
+    temp_max,
+    humidity
+  ) {
+    this.description = description;
+    this.icon = icon;
+    this.feels_like = feels_like;
+    this.temp = temp;
+    this.temp_min = temp_min;
+    this.temp_max = temp_max;
+    this.humidity = humidity;
+  }
+}
+
+// DOM elements
 const locationInput = document.querySelector("#location-name");
 const zipInput = document.querySelector("#zipcode");
 const geoInput = document.querySelector("#lat-lon");
-
 const locationSearch = document.querySelector("#location-name-search");
 const zipSearch = document.querySelector("#zipcode-search");
 const geoSearch = document.querySelector("#lat-lon-search");
-
 const output = document.querySelector(".output");
 
+// event listeners
 locationSearch.onclick = () => validateLocationForm(locationInput);
 zipSearch.onclick = () => validateZipForm(zipInput);
 geoSearch.onclick = () => validateGeoForm(geoInput);
 
+// validates form input and forwards to geolcation URL creator
 function validateLocationForm(search) {
   if (search.value === undefined || search.value === "") {
     alert("Please enter {city}, {state}, {country} COMMAS REQUIRED");
@@ -21,11 +62,9 @@ function validateLocationForm(search) {
       arr.push("USA");
     }
     // console.log(arr);
-    // newLocationURL(arr);
     geocoderDirect(arr);
   }
 }
-
 function validateZipForm(search) {
   if (search.value === undefined || search.value === "") {
     alert("Please enter {zipcode}, {country code}(optional, US default)");
@@ -40,11 +79,9 @@ function validateZipForm(search) {
       arr.push("US");
     }
     // console.log(arr);
-    // newZipURL(arr);
     geocoderZip(arr);
   }
 }
-
 function validateGeoForm(search) {
   if (search.value === undefined || search.value === "") {
     alert("Please enter {latitude}, {longitude}");
@@ -56,52 +93,67 @@ function validateGeoForm(search) {
       arr.push(str);
     }
     // console.log(arr);
-    // newGeoURL(arr);
-    // oneCallURL(arr);
     geocoderReverse(arr);
   }
 }
 
+// creates URL for geolocation API call
 function geocoderDirect(arr) {
   const query = arr.toString();
   const url = `http://api.openweathermap.org/geo/1.0/direct?q=${query}&appid=e768023fab961408a046720d11f66181`;
-  console.log(url);
+  // console.log(url);
   getLocation(url);
 }
-
 function geocoderZip(arr) {
   const query = arr.toString();
   const url = `http://api.openweathermap.org/geo/1.0/zip?zip=${query}&appid=e768023fab961408a046720d11f66181`;
-  console.log(url);
+  // console.log(url);
   getLocation(url);
 }
-
 function geocoderReverse(arr) {
-  const query = arr.toString();
   const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${arr[0]}&lon=${arr[1]}&appid=e768023fab961408a046720d11f66181`;
-  console.log(url);
+  // console.log(url);
   getLocation(url);
 }
 
-function oneCallURL(arr) {
-  const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${arr[0]}&lon=${arr[1]}&exclude=hourly,minutely&units=imperial&appid=e768023fab961408a046720d11f66181`;
-  console.log(url);
-  getWeather(url);
-}
-
+// geolocation API call
 async function getLocation(url) {
   try {
     const response = await fetch(url, {
       mode: "cors",
     });
     const locationData = await response.json();
-    console.log(locationData);
-    // processJSON(weatherData);
+    parseLocationData(locationData);
   } catch (error) {
     alert(error);
   }
 }
 
+// parses geolocation API return and sends new object for weather URL creation
+function parseLocationData(data) {
+  if (Array.isArray(data)) {
+    const geolocation = new Location(data[0].lat, data[0].lon, data[0].name);
+    oneCallURL(geolocation);
+  } else {
+    const geolocation = new Location(data.lat, data.lon, data.name);
+    oneCallURL(geolocation);
+  }
+}
+
+// creates URL for One Call API weather call and appends location name to DOM
+function oneCallURL(data) {
+  const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${data.lat}&lon=${data.lon}&exclude=hourly,minutely&units=imperial&appid=e768023fab961408a046720d11f66181`;
+  const location = document.createElement("h2");
+  location.textContent = data.name;
+  // clear output div before appending
+  while (output.firstChild) {
+    output.removeChild(output.firstChild);
+  }
+  output.appendChild(location);
+  getWeather(url);
+}
+
+// One Call API call for weather data
 async function getWeather(url) {
   try {
     const response = await fetch(url, {
@@ -109,67 +161,57 @@ async function getWeather(url) {
     });
     const weatherData = await response.json();
     console.log(weatherData);
-    // processJSON(weatherData);
+    parseCurrentData(weatherData);
   } catch (error) {
     alert(error);
   }
 }
 
-class Forecast {
-  constructor(
-    name,
-    description,
-    feels_like,
-    humidity,
-    temp,
-    temp_min,
-    temp_max,
-    lat,
-    lon
-  ) {
-    this.name = name;
-    this.description = description;
-    this.feels_like = feels_like;
-    this.humidity = humidity;
-    this.temp = temp;
-    this.temp_min = temp_min;
-    this.temp_max = temp_max;
-    this.lat = lat;
-    this.lon = lon;
-  }
-}
-
-function processJSON(weatherData) {
-  const today = new Forecast(
-    weatherData.name,
-    weatherData.weather[0].description,
-    weatherData.main.feels_like,
-    weatherData.main.humidity,
-    weatherData.main.temp,
-    weatherData.main.temp_min,
-    weatherData.main.temp_max,
-    weatherData.coord.lat,
-    weatherData.coord.lon
+// parse wanted information from current data section of One Call API
+function parseCurrentData(data) {
+  const today = new Current(
+    data.current.weather[0].description,
+    data.current.weather[0].icon,
+    data.current.feels_like,
+    data.current.temp,
+    data.current.humidity,
+    data.current.wind_speed
   );
   console.log(today);
+  renderCurrent(today);
 }
 
-// function newLocationURL(arr) {
-//   const query = arr.toString();
-//   const url = `http://api.openweathermap.org/data/2.5/weather?q=${query}&units=imperial&appid=e768023fab961408a046720d11f66181`;
-//   console.log(url);
-//   getWeather(url);
-// }
+// renders current weather info to DOM
+function renderCurrent(today) {
+  const current = document.createElement("div");
+  current.classList.add("current");
 
-// function newZipURL(arr) {
-//   const query = arr.toString();
-//   const url = `https://api.openweathermap.org/data/2.5/weather?zip=${query}&units=imperial&appid=e768023fab961408a046720d11f66181`;
-//   console.log(url);
-//   getWeather(url);
-// }
+  const icon = `http://openweathermap.org/img/wn/${today.icon}@2x.png`;
+  const img = document.createElement("img");
+  img.src = icon;
+  current.appendChild(img);
+  const description = document.createElement("h3");
+  description.textContent = today.description;
+  current.appendChild(description);
+  const stats = document.createElement("ul");
+  stats.classList.add("stats");
+  const feelsLike = document.createElement("li");
+  feelsLike.classList.add("feels-like");
+  feelsLike.textContent = parseInt(today.feels_like);
+  stats.appendChild(feelsLike);
+  const temp = document.createElement("li");
+  temp.classList.add("temp");
+  temp.textContent = parseInt(today.temp);
+  stats.appendChild(temp);
+  const humidity = document.createElement("li");
+  humidity.classList.add("humidity");
+  humidity.textContent = parseInt(today.humidity);
+  stats.appendChild(humidity);
+  const windSpeed = document.createElement("li");
+  windSpeed.classList.add("wind-speed");
+  windSpeed.textContent = parseInt(today.wind_speed);
+  stats.appendChild(windSpeed);
 
-// function newGeoURL(arr) {
-//   const url = `http://api.openweathermap.org/data/2.5/weather?lat=${arr[0]}&lon=${arr[1]}&units=imperial&appid=e768023fab961408a046720d11f66181`;
-//   console.log(url);
-//   getWeather(url);
-// }
+  current.appendChild(stats);
+  output.appendChild(current);
+}

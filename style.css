@@ -26,3 +26,50 @@ main {
 .output {
   margin-top: 20px;
 }
+
+.current {
+  margin-top: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 350px;
+  background-color: lightblue;
+  padding: 10px;
+}
+
+.stats {
+  padding: 10px;
+  list-style-type: none;
+}
+
+.feels-like::before {
+  content: "Feels like ";
+}
+
+.feels-like::after {
+  content: "°";
+}
+
+.temp::before {
+  content: "Currently ";
+}
+
+.temp::after {
+  content: "°";
+}
+
+.humidity::before {
+  content: "Humidity ";
+}
+
+.humidity::after {
+  content: "%";
+}
+
+.wind-speed::before {
+  content: "Wind ";
+}
+
+.wind-speed::after {
+  content: "mph";
+}
