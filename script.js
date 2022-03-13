@@ -48,9 +48,27 @@ const geoSearch = document.querySelector("#lat-lon-search");
 const output = document.querySelector(".output");
 
 // event listeners
-locationSearch.onclick = () => validateLocationForm(locationInput);
+locationSearch.onclick = () => validateInput(locationInput);
 zipSearch.onclick = () => validateZipForm(zipInput);
 geoSearch.onclick = () => validateGeoForm(geoInput);
+
+// utility functions
+function clearDOM() {
+  while (output.firstChild) {
+    output.removeChild(output.firstChild);
+  }
+}
+
+function validateInput(search) {
+  const inspect = search.value.split("");
+  if (isNaN(inspect[0])) {
+    console.log("might be a city name");
+  } else if (search.value.includes(".") || search.value.includes("-")) {
+    console.log("maybe GPS coordinates!");
+  } else {
+    console.log("zipcode baby");
+  }
+}
 
 // validates form input and forwards to geolcation URL creator
 function validateLocationForm(search) {
@@ -101,7 +119,7 @@ function validateGeoForm(search) {
 function geocoderDirect(arr) {
   const query = arr.toString();
   const url = `http://api.openweathermap.org/geo/1.0/direct?q=${query}&appid=e768023fab961408a046720d11f66181`;
-  // console.log(url);
+  console.log(url);
   getLocation(url);
 }
 function geocoderZip(arr) {
@@ -123,9 +141,22 @@ async function getLocation(url) {
       mode: "cors",
     });
     const locationData = await response.json();
-    parseLocationData(locationData);
+    // parseLocationData(locationData);
+    console.log(locationData);
+    validateLocationData(locationData);
   } catch (error) {
     alert(error);
+  }
+}
+
+// checks API data for input errors
+function validateLocationData(data) {
+  if (data.cod === "404" || data.cod === "400" || data.cod === "") {
+    console.log("doh!");
+    alert(`Invalid input:  ${data.message}`);
+    clearDOM();
+  } else {
+    parseLocationData(data);
   }
 }
 
@@ -146,9 +177,7 @@ function oneCallURL(data) {
   const location = document.createElement("h2");
   location.textContent = data.name;
   // clear output div before appending
-  while (output.firstChild) {
-    output.removeChild(output.firstChild);
-  }
+  clearDOM();
   output.appendChild(location);
   getWeather(url);
 }
