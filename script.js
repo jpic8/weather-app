@@ -1,3 +1,5 @@
+"use strict";
+
 // new object classes
 class Location {
   constructor(lat, lon, name) {
@@ -7,7 +9,7 @@ class Location {
   }
 }
 
-class Current {
+class Forecast {
   constructor(description, icon, feels_like, temp, humidity, wind_speed) {
     this.description = description;
     this.icon = icon;
@@ -15,26 +17,6 @@ class Current {
     this.temp = temp;
     this.humidity = humidity;
     this.wind_speed = wind_speed;
-  }
-}
-
-class Daily {
-  constructor(
-    description,
-    icon,
-    feels_like,
-    temp,
-    temp_min,
-    temp_max,
-    humidity
-  ) {
-    this.description = description;
-    this.icon = icon;
-    this.feels_like = feels_like;
-    this.temp = temp;
-    this.temp_min = temp_min;
-    this.temp_max = temp_max;
-    this.humidity = humidity;
   }
 }
 
@@ -59,67 +41,95 @@ function clearDOM() {
   }
 }
 
-function validateInput(search) {
-  const inspect = search.value.split("");
-  if (isNaN(inspect[0])) {
-    console.log("might be a city name");
-  } else if (search.value.includes(".") || search.value.includes("-")) {
-    console.log("maybe GPS coordinates!");
+// processes any input errors and appends to alert message to DOM
+function inputAlert(err) {
+  clearDOM();
+  if (err === undefined || err.cod === "") {
+    alert("Please enter a valid location!");
+    const message = [
+      "Please enter location with commas as separators!",
+      "City, State, Country-optional, US default",
+      "Zipcode, Country-optional, US default",
+      "Latitude, Longitude",
+      "Please use ISO 3166 country codes.",
+    ];
+    for (i = 0; i < message.length; i++) {
+      let p = document.createElement("p");
+      p.classList.add("input-alert");
+      p.textContent = message[i];
+      output.appendChild(p);
+    }
   } else {
-    console.log("zipcode baby");
+    const message = document.createElement("p");
+    message.textContent = `${err.cod} ${err.message}`;
+    message.classList.add("input-alert");
+    output.appendChild(message);
   }
 }
 
-// validates form input and forwards to geolcation URL creator
-function validateLocationForm(search) {
+// validates user input and directs to appropriate geolocation path
+function validateInput(search) {
   if (search.value === undefined || search.value === "") {
-    alert("Please enter {city}, {state}, {country} COMMAS REQUIRED");
+    inputAlert();
   } else {
-    const arr = search.value.split(",");
-    if (arr.length === 2) {
-      arr.push("USA");
+    const inspect = search.value.split("");
+    if (isNaN(inspect[0]) && inspect[0] !== "-") {
+      console.log("might be a city name");
+    } else if (search.value.includes(".") || search.value.includes("-")) {
+      console.log("maybe GPS coordinates!");
+    } else {
+      console.log("zipcode baby");
     }
-    // console.log(arr);
-    geocoderDirect(arr);
   }
+}
+
+// validates form input and forwards to appropriate geolcation URL creator
+function validateLocationForm(search) {
+  const arr = search.value.split(",");
+  // US default if no country code provided
+  if (arr.length === 2) {
+    arr.push("USA");
+  }
+  // console.log(arr);
+  geocoderDirect(arr);
 }
 function validateZipForm(search) {
-  if (search.value === undefined || search.value === "") {
-    alert("Please enter {zipcode}, {country code}(optional, US default)");
-  } else {
-    const temp = search.value.split(",");
-    const arr = [];
-    for (i = 0; i < temp.length; i++) {
-      const str = temp[i].replace(/ /g, "");
-      arr.push(str);
-    }
-    if (arr.length === 1) {
-      arr.push("US");
-    }
-    // console.log(arr);
-    geocoderZip(arr);
+  const temp = search.value.split(",");
+  const arr = [];
+  // remove spaces from string before creating new array
+  for (let i = 0; i < temp.length; i++) {
+    const str = temp[i].replace(/ /g, "");
+    arr.push(str);
   }
+  // fix common error
+  if (arr[1] === "USA") {
+    arr.pop();
+    arr.push("US");
+  }
+  // US default if no country code provided
+  if (arr.length === 1) {
+    arr.push("US");
+  }
+  // console.log(arr);
+  geocoderZip(arr);
 }
 function validateGeoForm(search) {
-  if (search.value === undefined || search.value === "") {
-    alert("Please enter {latitude}, {longitude}");
-  } else {
-    const temp = search.value.split(",");
-    const arr = [];
-    for (i = 0; i < temp.length; i++) {
-      const str = temp[i].replace(/ /g, "");
-      arr.push(str);
-    }
-    // console.log(arr);
-    geocoderReverse(arr);
+  const temp = search.value.split(",");
+  const arr = [];
+  // remove spaces from string before creating new array
+  for (let i = 0; i < temp.length; i++) {
+    const str = temp[i].replace(/ /g, "");
+    arr.push(str);
   }
+  // console.log(arr);
+  geocoderReverse(arr);
 }
 
 // creates URL for geolocation API call
 function geocoderDirect(arr) {
   const query = arr.toString();
   const url = `http://api.openweathermap.org/geo/1.0/direct?q=${query}&appid=e768023fab961408a046720d11f66181`;
-  console.log(url);
+  // console.log(url);
   getLocation(url);
 }
 function geocoderZip(arr) {
@@ -134,33 +144,33 @@ function geocoderReverse(arr) {
   getLocation(url);
 }
 
-// geolocation API call
+// Open Weather Geocoding API call
 async function getLocation(url) {
   try {
     const response = await fetch(url, {
       mode: "cors",
     });
     const locationData = await response.json();
-    // parseLocationData(locationData);
-    console.log(locationData);
+    // console.log(locationData);
     validateLocationData(locationData);
   } catch (error) {
     alert(error);
   }
 }
 
-// checks API data for input errors
+// check location API data for input errors
 function validateLocationData(data) {
   if (data.cod === "404" || data.cod === "400" || data.cod === "") {
     console.log("doh!");
     alert(`Invalid input:  ${data.message}`);
     clearDOM();
+    inputAlert(data);
   } else {
     parseLocationData(data);
   }
 }
 
-// parses geolocation API return and sends new object for weather URL creation
+// parses geolocation API return and sends object for weather URL creation
 function parseLocationData(data) {
   if (Array.isArray(data)) {
     const geolocation = new Location(data[0].lat, data[0].lon, data[0].name);
@@ -182,7 +192,7 @@ function oneCallURL(data) {
   getWeather(url);
 }
 
-// One Call API call for weather data
+// Open Weather One Call API
 async function getWeather(url) {
   try {
     const response = await fetch(url, {
@@ -190,15 +200,16 @@ async function getWeather(url) {
     });
     const weatherData = await response.json();
     console.log(weatherData);
-    parseCurrentData(weatherData);
+    // parseCurrentData(weatherData);
+    // render(weatherData);
   } catch (error) {
     alert(error);
   }
 }
 
-// parse wanted information from current data section of One Call API
+// parse wanted information from One Call API object return
 function parseCurrentData(data) {
-  const today = new Current(
+  const today = new Forecast(
     data.current.weather[0].description,
     data.current.weather[0].icon,
     data.current.feels_like,
@@ -207,11 +218,27 @@ function parseCurrentData(data) {
     data.current.wind_speed
   );
   console.log(today);
-  renderCurrent(today);
+  // renderCurrent(today);
+}
+
+function render(data) {
+  const currentArr = [];
+  for (let entree of Object.entries(data.current)) {
+    currentArr.push(entree);
+  }
+  console.log(currentArr);
+  const dailyArr = [];
+  const weeklyArr = [];
+  for (let i = 0; i < data.daily.length; i++) {
+    for (let entree of Object.entries(data.daily[i])) {
+      dailyArr.push(entree);
+    }
+  }
+  console.log(dailyArr);
 }
 
 // renders current weather info to DOM
-function renderCurrent(today) {
+function renderCurrent(data) {
   const current = document.createElement("div");
   current.classList.add("current");
 
