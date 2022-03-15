@@ -1,69 +1,17 @@
 "use strict";
 
-// new object classes
-class Location {
-  constructor(lat, lon, name) {
-    this.lat = lat;
-    this.lon = lon;
-    this.name = name;
-  }
-}
-
-class Forecast {
-  constructor(description, icon, feels_like, temp, humidity, wind_speed) {
-    this.description = description;
-    this.icon = icon;
-    this.feels_like = feels_like;
-    this.temp = temp;
-    this.humidity = humidity;
-    this.wind_speed = wind_speed;
-  }
-}
-
 // DOM elements
 const locationInput = document.querySelector("#location-name");
-const zipInput = document.querySelector("#zipcode");
-const geoInput = document.querySelector("#lat-lon");
 const locationSearch = document.querySelector("#location-name-search");
-const zipSearch = document.querySelector("#zipcode-search");
-const geoSearch = document.querySelector("#lat-lon-search");
 const output = document.querySelector(".output");
 
 // event listeners
 locationSearch.onclick = () => validateInput(locationInput);
-zipSearch.onclick = () => validateZipForm(zipInput);
-geoSearch.onclick = () => validateGeoForm(geoInput);
 
 // utility functions
 function clearDOM() {
   while (output.firstChild) {
     output.removeChild(output.firstChild);
-  }
-}
-
-// processes any input errors and appends to alert message to DOM
-function inputAlert(err) {
-  clearDOM();
-  if (err === undefined || err.cod === "") {
-    alert("Please enter a valid location!");
-    const message = [
-      "Please enter location with commas as separators!",
-      "City, State, Country-optional, US default",
-      "Zipcode, Country-optional, US default",
-      "Latitude, Longitude",
-      "Please use ISO 3166 country codes.",
-    ];
-    for (i = 0; i < message.length; i++) {
-      let p = document.createElement("p");
-      p.classList.add("input-alert");
-      p.textContent = message[i];
-      output.appendChild(p);
-    }
-  } else {
-    const message = document.createElement("p");
-    message.textContent = `${err.cod} ${err.message}`;
-    message.classList.add("input-alert");
-    output.appendChild(message);
   }
 }
 
@@ -74,12 +22,39 @@ function validateInput(search) {
   } else {
     const inspect = search.value.split("");
     if (isNaN(inspect[0]) && inspect[0] !== "-") {
-      console.log("might be a city name");
+      validateLocationForm(search);
     } else if (search.value.includes(".") || search.value.includes("-")) {
-      console.log("maybe GPS coordinates!");
+      validateGeoForm(search);
     } else {
-      console.log("zipcode baby");
+      validateZipForm(search);
     }
+  }
+}
+
+// processes any input errors and appends to alert message to DOM
+function inputAlert(err) {
+  clearDOM();
+  if (err === undefined || err.cod === "") {
+    alert("Please enter a valid location!");
+    const message = [
+      "Please enter location with commas as separators!",
+      "City Name, State Code, Country Code*",
+      "Zip Code, Country Code*",
+      "Latitude, Longitude",
+      "*optional, US default",
+      "Please use ISO 3166 country codes.",
+    ];
+    for (let i = 0; i < message.length; i++) {
+      let p = document.createElement("p");
+      p.classList.add("input-alert");
+      p.textContent = message[i];
+      output.appendChild(p);
+    }
+  } else {
+    const message = document.createElement("p");
+    message.textContent = `${err.cod} ${err.message}`;
+    message.classList.add("input-alert");
+    output.appendChild(message);
   }
 }
 
@@ -96,7 +71,7 @@ function validateLocationForm(search) {
 function validateZipForm(search) {
   const temp = search.value.split(",");
   const arr = [];
-  // remove spaces from string before creating new array
+  // remove spaces from string before creating array
   for (let i = 0; i < temp.length; i++) {
     const str = temp[i].replace(/ /g, "");
     arr.push(str);
@@ -116,7 +91,7 @@ function validateZipForm(search) {
 function validateGeoForm(search) {
   const temp = search.value.split(",");
   const arr = [];
-  // remove spaces from string before creating new array
+  // remove spaces from string before creating array
   for (let i = 0; i < temp.length; i++) {
     const str = temp[i].replace(/ /g, "");
     arr.push(str);
@@ -170,7 +145,16 @@ function validateLocationData(data) {
   }
 }
 
-// parses geolocation API return and sends object for weather URL creation
+// new location object to smooth transition from Geocoding API > One Call API call
+class Location {
+  constructor(lat, lon, name) {
+    this.lat = lat;
+    this.lon = lon;
+    this.name = name;
+  }
+}
+
+// parses geolocation API return and sends Location object for weather URL creation
 function parseLocationData(data) {
   if (Array.isArray(data)) {
     const geolocation = new Location(data[0].lat, data[0].lon, data[0].name);
@@ -202,72 +186,86 @@ async function getWeather(url) {
     console.log(weatherData);
     // parseCurrentData(weatherData);
     // render(weatherData);
+    renderCurrent(weatherData);
+    renderForecast(weatherData);
   } catch (error) {
     alert(error);
   }
-}
-
-// parse wanted information from One Call API object return
-function parseCurrentData(data) {
-  const today = new Forecast(
-    data.current.weather[0].description,
-    data.current.weather[0].icon,
-    data.current.feels_like,
-    data.current.temp,
-    data.current.humidity,
-    data.current.wind_speed
-  );
-  console.log(today);
-  // renderCurrent(today);
-}
-
-function render(data) {
-  const currentArr = [];
-  for (let entree of Object.entries(data.current)) {
-    currentArr.push(entree);
-  }
-  console.log(currentArr);
-  const dailyArr = [];
-  const weeklyArr = [];
-  for (let i = 0; i < data.daily.length; i++) {
-    for (let entree of Object.entries(data.daily[i])) {
-      dailyArr.push(entree);
-    }
-  }
-  console.log(dailyArr);
 }
 
 // renders current weather info to DOM
 function renderCurrent(data) {
   const current = document.createElement("div");
   current.classList.add("current");
-
-  const icon = `http://openweathermap.org/img/wn/${today.icon}@2x.png`;
+  const description = document.createElement("h3");
+  description.textContent = data.current.weather[0].description;
+  current.appendChild(description);
+  const icon = `http://openweathermap.org/img/wn/${data.current.weather[0].icon}@2x.png`;
   const img = document.createElement("img");
   img.src = icon;
   current.appendChild(img);
-  const description = document.createElement("h3");
-  description.textContent = today.description;
-  current.appendChild(description);
-  const stats = document.createElement("ul");
-  stats.classList.add("stats");
-  const feelsLike = document.createElement("li");
-  feelsLike.classList.add("feels-like");
-  feelsLike.textContent = parseInt(today.feels_like);
-  stats.appendChild(feelsLike);
-  const temp = document.createElement("li");
-  temp.classList.add("temp");
-  temp.textContent = parseInt(today.temp);
-  stats.appendChild(temp);
-  const humidity = document.createElement("li");
-  humidity.classList.add("humidity");
-  humidity.textContent = parseInt(today.humidity);
-  stats.appendChild(humidity);
-  const windSpeed = document.createElement("li");
-  windSpeed.classList.add("wind-speed");
-  windSpeed.textContent = parseInt(today.wind_speed);
-  stats.appendChild(windSpeed);
 
-  current.appendChild(stats);
+  const fragment = document.createDocumentFragment();
+  const list = document.createElement("ul");
+  list.classList.add("weather-stats");
+  const stats = [
+    `Currently ${parseInt(data.current.temp)}°`,
+    `Feels like ${parseInt(data.current.feels_like)}°`,
+    `Min ${parseInt(data.daily[0].temp.min)}°`,
+    `Max ${parseInt(data.daily[0].temp.max)}°`,
+    `Humidity ${parseInt(data.current.humidity)}%`,
+    `Wind ${parseInt(data.current.wind_speed)}mph`,
+  ];
+  stats.forEach(function (stat) {
+    let li = document.createElement("li");
+    li.textContent = stat;
+    // console.log(stat);
+    list.appendChild(li);
+  });
+  fragment.appendChild(list);
+  current.appendChild(fragment);
   output.appendChild(current);
+}
+
+// renders forecast to DOM
+function renderForecast(data) {
+  const forecast = document.createElement("div");
+  forecast.classList.add("forecast");
+  for (let i = 1; i < data.daily.length; i++) {
+    const daily = document.createElement("div");
+    daily.classList.add("daily");
+    // find and append day of week
+    const days = [
+      "Sunday",
+      "Monday",
+      "Tuesday",
+      "Wednesday",
+      "Thursday",
+      "Friday",
+      "Saturday",
+    ];
+    const dayNum = new Date(data.daily[i].dt * 1000).getDay();
+    const dayName = document.createElement("span");
+    dayName.textContent = days[dayNum];
+    daily.appendChild(dayName);
+    // append weather icon
+    const icon = `http://openweathermap.org/img/wn/${data.daily[i].weather[0].icon}.png`;
+    const img = document.createElement("img");
+    img.src = icon;
+    daily.appendChild(img);
+    // append short descriptor, min temp, max temp
+    const description = document.createElement("span");
+    description.textContent = data.daily[i].weather[0].main;
+    const min = document.createElement("span");
+    min.classList.add("forecast-temp-min");
+    min.textContent = `${parseInt(data.daily[i].temp.min)}°`;
+    const max = document.createElement("span");
+    max.classList.add("forecast-temp-max");
+    max.textContent = `${parseInt(data.daily[i].temp.max)}°`;
+    daily.appendChild(description);
+    daily.appendChild(max);
+    daily.appendChild(min);
+    forecast.appendChild(daily);
+  }
+  output.appendChild(forecast);
 }

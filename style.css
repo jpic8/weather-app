@@ -23,53 +23,66 @@ main {
   padding: 20px;
 }
 
+input {
+  padding: 5px;
+  margin: 2px;
+  border-radius: 8px;
+  border: 1px solid black;
+}
+
+button {
+  padding: 5px;
+  border-radius: 8px;
+  border: 1px solid black;
+}
+
 .output {
+  display: flex;
+  flex-direction: column;
   margin-top: 20px;
+  align-items: center;
 }
 
 .current {
   margin-top: 20px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  width: 350px;
+  justify-content: space-around;
+  width: 50vw;
   background-color: lightblue;
   padding: 10px;
+  border-radius: 10px;
+  border-bottom: 1px dotted black;
+  border-right: 1px dotted black;
 }
 
-.stats {
+.weather-stats {
   padding: 10px;
   list-style-type: none;
 }
 
-.feels-like::before {
-  content: "Feels like ";
+.forecast {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-top: 20px;
+  padding: 10px;
+  background-color: lightblue;
+  border-radius: 8px;
+  border-bottom: 1px dotted black;
+  border-right: 1px dotted black;
 }
 
-.feels-like::after {
-  content: "°";
+.daily {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
 }
 
-.temp::before {
-  content: "Currently ";
+.forecast-temp-min {
+  color: blue;
 }
 
-.temp::after {
-  content: "°";
-}
-
-.humidity::before {
-  content: "Humidity ";
-}
-
-.humidity::after {
-  content: "%";
-}
-
-.wind-speed::before {
-  content: "Wind ";
-}
-
-.wind-speed::after {
-  content: "mph";
+.forecast-temp-max {
+  color: red;
 }
