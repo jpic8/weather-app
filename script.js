@@ -196,7 +196,6 @@ function renderCurrent(data) {
   const img = document.createElement("img");
   img.src = icon;
   current.appendChild(img);
-  const fragment = document.createDocumentFragment();
   const list = document.createElement("ul");
   list.classList.add("weather-stats");
   const stats = [
@@ -212,8 +211,7 @@ function renderCurrent(data) {
     li.textContent = stat;
     list.appendChild(li);
   });
-  fragment.appendChild(list);
-  current.appendChild(fragment);
+  current.appendChild(list);
   output.appendChild(current);
 }
 
