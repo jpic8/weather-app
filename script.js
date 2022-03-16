@@ -34,21 +34,22 @@ function validateInput(search) {
 // processes any input errors and appends to alert message to DOM
 function inputAlert(err) {
   clearDOM();
+  const alertDiv = document.createElement("div");
+  alertDiv.classList.add("input-alert");
   if (err === undefined || err.cod === "") {
     alert("Please enter a valid location!");
     const message = [
       "Please enter location with commas as separators!",
-      "City Name, State Code, Country Code*",
-      "Zip Code, Country Code*",
+      "City Name, State Code, Country Code* ||",
+      "Zip Code, Country Code* ||",
       "Latitude, Longitude",
-      "*optional, US default",
-      "Please use ISO 3166 country codes.",
+      "*optional, US default, Please use ISO 3166 country codes.",
     ];
     for (let i = 0; i < message.length; i++) {
       let p = document.createElement("p");
-      p.classList.add("input-alert");
       p.textContent = message[i];
-      output.appendChild(p);
+      alertDiv.appendChild(p);
+      output.appendChild(alertDiv);
     }
   } else {
     const message = document.createElement("p");
@@ -65,7 +66,6 @@ function validateLocationForm(search) {
   if (arr.length === 2) {
     arr.push("USA");
   }
-  // console.log(arr);
   geocoderDirect(arr);
 }
 function validateZipForm(search) {
@@ -76,7 +76,7 @@ function validateZipForm(search) {
     const str = temp[i].replace(/ /g, "");
     arr.push(str);
   }
-  // fix common error
+  // fix common country code error
   if (arr[1] === "USA") {
     arr.pop();
     arr.push("US");
@@ -85,7 +85,6 @@ function validateZipForm(search) {
   if (arr.length === 1) {
     arr.push("US");
   }
-  // console.log(arr);
   geocoderZip(arr);
 }
 function validateGeoForm(search) {
@@ -96,7 +95,6 @@ function validateGeoForm(search) {
     const str = temp[i].replace(/ /g, "");
     arr.push(str);
   }
-  // console.log(arr);
   geocoderReverse(arr);
 }
 
@@ -104,18 +102,15 @@ function validateGeoForm(search) {
 function geocoderDirect(arr) {
   const query = arr.toString();
   const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&appid=e768023fab961408a046720d11f66181`;
-  // console.log(url);
   getLocation(url);
 }
 function geocoderZip(arr) {
   const query = arr.toString();
   const url = `https://api.openweathermap.org/geo/1.0/zip?zip=${query}&appid=e768023fab961408a046720d11f66181`;
-  // console.log(url);
   getLocation(url);
 }
 function geocoderReverse(arr) {
   const url = `https://api.openweathermap.org/geo/1.0/reverse?lat=${arr[0]}&lon=${arr[1]}&appid=e768023fab961408a046720d11f66181`;
-  // console.log(url);
   getLocation(url);
 }
 
@@ -126,7 +121,6 @@ async function getLocation(url) {
       mode: "cors",
     });
     const locationData = await response.json();
-    // console.log(locationData);
     validateLocationData(locationData);
   } catch (error) {
     alert(error);
@@ -136,7 +130,6 @@ async function getLocation(url) {
 // check location API data for input errors
 function validateLocationData(data) {
   if (data.cod === "404" || data.cod === "400" || data.cod === "") {
-    console.log("doh!");
     alert(`Invalid input:  ${data.message}`);
     clearDOM();
     inputAlert(data);
@@ -183,9 +176,6 @@ async function getWeather(url) {
       mode: "cors",
     });
     const weatherData = await response.json();
-    console.log(weatherData);
-    // parseCurrentData(weatherData);
-    // render(weatherData);
     renderCurrent(weatherData);
     renderForecast(weatherData);
   } catch (error) {
@@ -204,7 +194,6 @@ function renderCurrent(data) {
   const img = document.createElement("img");
   img.src = icon;
   current.appendChild(img);
-
   const fragment = document.createDocumentFragment();
   const list = document.createElement("ul");
   list.classList.add("weather-stats");

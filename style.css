@@ -6,6 +6,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: Gotham Rounded, sans-serif;
+}
+
+header {
+  margin-top: 20px;
 }
 
 body {
@@ -13,6 +18,11 @@ body {
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  background-color: #f0f9ff;
+}
+
+footer {
+  font-size: 0.8rem;
 }
 
 main {
@@ -34,6 +44,17 @@ button {
   padding: 5px;
   border-radius: 8px;
   border: 1px solid black;
+  cursor: pointer;
+}
+
+.input-alert {
+  display: flex;
+  flex-direction: column;
+  justify-content: left;
+  background-color: yellow;
+  padding: 10px;
+  border: 5px red dotted;
+  font-weight: 600;
 }
 
 .output {
@@ -43,14 +64,27 @@ button {
   align-items: center;
 }
 
+@keyframes append-animate {
+  from {
+    transform: scale(0);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
 .current {
+  animation: append-animate 0.3s linear;
   margin-top: 20px;
   display: flex;
+  flex-shrink: 0;
   align-items: center;
-  justify-content: space-around;
-  width: 50vw;
-  background-color: lightblue;
-  padding: 10px;
+  justify-content: center;
+  width: auto;
+  background-color: #bae6fd;
+  padding: 10px 20px 10px 25px;
   border-radius: 10px;
   border-bottom: 1px dotted black;
   border-right: 1px dotted black;
@@ -62,21 +96,28 @@ button {
 }
 
 .forecast {
+  animation: append-animate 0.5s linear;
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   margin-top: 20px;
   padding: 10px;
-  background-color: lightblue;
+  background-color: #bae6fd;
   border-radius: 8px;
   border-bottom: 1px dotted black;
   border-right: 1px dotted black;
 }
 
 .daily {
+  animation: append-animate 0.8s linear;
   display: flex;
+  flex-shrink: 0;
   flex-direction: column;
   align-items: center;
   padding: 5px;
+}
+
+.daily:hover {
+  background-color: #38bdf8;
 }
 
 .forecast-temp-min {
@@ -85,4 +126,15 @@ button {
 
 .forecast-temp-max {
   color: red;
+}
+
+@media only screen and (max-width: 600px) {
+  .current {
+    width: 90vw;
+  }
+  .forecast {
+    width: 90vw;
+    display: flex;
+    flex-wrap: wrap;
+  }
 }
