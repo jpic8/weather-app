@@ -124,6 +124,7 @@ async function getLocation(url) {
     validateLocationData(locationData);
   } catch (error) {
     alert(error);
+    inputAlert(error);
   }
 }
 
@@ -180,6 +181,7 @@ async function getWeather(url) {
     renderForecast(weatherData);
   } catch (error) {
     alert(error);
+    inputAlert(error);
   }
 }
 
@@ -208,7 +210,6 @@ function renderCurrent(data) {
   stats.forEach(function (stat) {
     let li = document.createElement("li");
     li.textContent = stat;
-    // console.log(stat);
     list.appendChild(li);
   });
   fragment.appendChild(list);
