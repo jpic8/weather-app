@@ -103,18 +103,18 @@ function validateGeoForm(search) {
 // creates URL for geolocation API call
 function geocoderDirect(arr) {
   const query = arr.toString();
-  const url = `http://api.openweathermap.org/geo/1.0/direct?q=${query}&appid=e768023fab961408a046720d11f66181`;
+  const url = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&appid=e768023fab961408a046720d11f66181`;
   // console.log(url);
   getLocation(url);
 }
 function geocoderZip(arr) {
   const query = arr.toString();
-  const url = `http://api.openweathermap.org/geo/1.0/zip?zip=${query}&appid=e768023fab961408a046720d11f66181`;
+  const url = `https://api.openweathermap.org/geo/1.0/zip?zip=${query}&appid=e768023fab961408a046720d11f66181`;
   // console.log(url);
   getLocation(url);
 }
 function geocoderReverse(arr) {
-  const url = `http://api.openweathermap.org/geo/1.0/reverse?lat=${arr[0]}&lon=${arr[1]}&appid=e768023fab961408a046720d11f66181`;
+  const url = `https://api.openweathermap.org/geo/1.0/reverse?lat=${arr[0]}&lon=${arr[1]}&appid=e768023fab961408a046720d11f66181`;
   // console.log(url);
   getLocation(url);
 }
@@ -200,7 +200,7 @@ function renderCurrent(data) {
   const description = document.createElement("h3");
   description.textContent = data.current.weather[0].description;
   current.appendChild(description);
-  const icon = `http://openweathermap.org/img/wn/${data.current.weather[0].icon}@2x.png`;
+  const icon = `https://openweathermap.org/img/wn/${data.current.weather[0].icon}@2x.png`;
   const img = document.createElement("img");
   img.src = icon;
   current.appendChild(img);
@@ -249,7 +249,7 @@ function renderForecast(data) {
     dayName.textContent = days[dayNum];
     daily.appendChild(dayName);
     // append weather icon
-    const icon = `http://openweathermap.org/img/wn/${data.daily[i].weather[0].icon}.png`;
+    const icon = `https://openweathermap.org/img/wn/${data.daily[i].weather[0].icon}.png`;
     const img = document.createElement("img");
     img.src = icon;
     daily.appendChild(img);
