@@ -7,6 +7,12 @@ const output = document.querySelector(".output");
 
 // event listeners
 locationSearch.onclick = () => validateInput(locationInput);
+locationInput.onkeydown = (e) => {
+  if (e.keyCode === 13) {
+    e.preventDefault();
+    validateInput(locationInput);
+  }
+};
 
 // utility functions
 function clearDOM() {
@@ -153,11 +159,9 @@ function parseLocationData(data) {
   if (Array.isArray(data)) {
     const geolocation = new Location(data[0].lat, data[0].lon, data[0].name);
     oneCallURL(geolocation);
-    console.log(geolocation);
   } else {
     const geolocation = new Location(data.lat, data.lon, data.name);
     oneCallURL(geolocation);
-    console.log(geolocation);
   }
 }
 
@@ -174,7 +178,6 @@ function locationBanner(data) {
   location.textContent = data.name;
   clearDOM();
   output.appendChild(location);
-  console.log(data);
 }
 
 // Open Weather One Call API
