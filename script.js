@@ -153,21 +153,28 @@ function parseLocationData(data) {
   if (Array.isArray(data)) {
     const geolocation = new Location(data[0].lat, data[0].lon, data[0].name);
     oneCallURL(geolocation);
+    console.log(geolocation);
   } else {
     const geolocation = new Location(data.lat, data.lon, data.name);
     oneCallURL(geolocation);
+    console.log(geolocation);
   }
 }
 
-// creates URL for One Call API weather call and appends location name to DOM
+// creates URL for One Call API weather call
 function oneCallURL(data) {
   const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${data.lat}&lon=${data.lon}&exclude=hourly,minutely&units=imperial&appid=e768023fab961408a046720d11f66181`;
+  locationBanner(data);
+  getWeather(url);
+}
+
+// appends location name to DOM
+function locationBanner(data) {
   const location = document.createElement("h2");
   location.textContent = data.name;
-  // clear output div before appending
   clearDOM();
   output.appendChild(location);
-  getWeather(url);
+  console.log(data);
 }
 
 // Open Weather One Call API
