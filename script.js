@@ -11,6 +11,9 @@ locationInput.onkeydown = (e) => {
   if (e.keyCode === 13) {
     e.preventDefault();
     validateInput(locationInput);
+  } else if (e.keyCode === 27) {
+    e.preventDefault();
+    locationInput.value = "";
   }
 };
 
