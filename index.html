@@ -12,13 +12,26 @@
     <header><h1>Weather App</h1></header>
     <main>
       <div>
-        <input
-          type="text"
-          id="location-name"
-          class="location-name"
-          placeholder="location"
-        />
-        <button id="location-name-search">Search</button>
+        <ul class="search-area">
+          <li>
+            <input
+              type="text"
+              id="location-name"
+              class="location-name"
+              placeholder="location"
+            />
+          </li>
+          <li>
+            <input type="checkbox" name="units" id="units" />
+            <label for="units"
+              ><span class="metric">°C</span>
+              <span class="imperial">°F</span></label
+            >
+          </li>
+          <li>
+            <button id="location-name-search">Search</button>
+          </li>
+        </ul>
       </div>
       <div class="output"></div>
     </main>
