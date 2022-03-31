@@ -4,6 +4,7 @@
 const locationInput = document.querySelector("#location-name");
 const locationSearch = document.querySelector("#location-name-search");
 const output = document.querySelector(".output");
+const toggle = document.querySelector("#units");
 
 // event listeners
 locationSearch.onclick = () => validateInput(locationInput);
@@ -148,7 +149,7 @@ function validateLocationData(data) {
   }
 }
 
-// new location object to smooth transition from Geocoding API > One Call API call
+// location object to smooth transition from Geocoding API > One Call API call
 class Location {
   constructor(lat, lon, name) {
     this.lat = lat;
@@ -161,16 +162,27 @@ class Location {
 function parseLocationData(data) {
   if (Array.isArray(data)) {
     const geolocation = new Location(data[0].lat, data[0].lon, data[0].name);
-    oneCallURL(geolocation);
+    checkUnitsToggle(geolocation);
   } else {
     const geolocation = new Location(data.lat, data.lon, data.name);
-    oneCallURL(geolocation);
+    checkUnitsToggle(geolocation);
+  }
+}
+
+// checks toggle status and appends appropriate settings to Location object
+function checkUnitsToggle(data) {
+  if (toggle.checked === false) {
+    data.units = "imperial";
+    oneCallURL(data);
+  } else {
+    data.units = "metric";
+    oneCallURL(data);
   }
 }
 
 // creates URL for One Call API weather call
 function oneCallURL(data) {
-  const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${data.lat}&lon=${data.lon}&exclude=hourly,minutely&units=imperial&appid=e768023fab961408a046720d11f66181`;
+  const url = `https://api.openweathermap.org/data/2.5/onecall?lat=${data.lat}&lon=${data.lon}&exclude=hourly,minutely&units=${data.units}&appid=e768023fab961408a046720d11f66181`;
   locationBanner(data);
   getWeather(url);
 }
@@ -198,8 +210,33 @@ async function getWeather(url) {
   }
 }
 
+// checks toggle status for appropriate wind speed annotation
+function windSpeed() {
+  if (toggle.checked === false) {
+    return "mph";
+  } else {
+    return "km/h";
+  }
+}
+
+function windDirection(data) {
+  if (data.current.wind_deg > 337.5) return "N";
+  if (data.current.wind_deg > 292.5) return "NW";
+  if (data.current.wind_deg > 247.5) return "W";
+  if (data.current.wind_deg > 202.5) return "SW";
+  if (data.current.wind_deg > 157.5) return "S";
+  if (data.current.wind_deg > 122.5) return "SE";
+  if (data.current.wind_deg > 67.5) return "E";
+  if (data.current.wind_deg > 22.5) {
+    return "NE";
+  }
+  return "N";
+}
+
 // renders current weather info to DOM
 function renderCurrent(data) {
+  console.log(data);
+  console.log(windDirection(data));
   const current = document.createElement("div");
   current.classList.add("current");
   const description = document.createElement("h3");
@@ -217,7 +254,10 @@ function renderCurrent(data) {
     `Min ${parseInt(data.daily[0].temp.min)}°`,
     `Max ${parseInt(data.daily[0].temp.max)}°`,
     `Humidity ${parseInt(data.current.humidity)}%`,
-    `Wind ${parseInt(data.current.wind_speed)}mph`,
+    `Wind ${parseInt(data.current.wind_speed)} ${windSpeed()} ${windDirection(
+      data
+    )}`,
+    `Gust ${parseInt(data.current.wind_gust)} ${windSpeed()}`,
   ];
   stats.forEach(function (stat) {
     let li = document.createElement("li");
