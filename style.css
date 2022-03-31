@@ -1,4 +1,5 @@
 /*style.css*/
+@import "./toggle.css";
 
 *,
 *::after,
@@ -23,6 +24,7 @@ body {
 
 footer {
   font-size: 0.8rem;
+  margin-bottom: 10px;
 }
 
 main {
@@ -45,6 +47,12 @@ button {
   border-radius: 8px;
   border: 1px solid black;
   cursor: pointer;
+}
+
+.search-area {
+  margin-left: 75px;
+  display: grid;
+  grid-template-columns: 1.5fr 0.5fr 100px;
 }
 
 .input-alert {
@@ -93,6 +101,10 @@ button {
 .weather-stats {
   padding: 10px;
   list-style-type: none;
+}
+
+.weather-stats li {
+  width: auto;
 }
 
 .forecast {
