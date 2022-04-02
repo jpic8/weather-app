@@ -53,7 +53,7 @@ button {
 .search-area {
   display: grid;
   gap: 0;
-  grid-template-columns: 1.5fr 35px 35px;
+  grid-template-columns: 2fr 70px 30px;
 }
 
 .location-name {
