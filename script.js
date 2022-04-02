@@ -202,8 +202,7 @@ async function getWeather(url) {
       mode: "cors",
     });
     const weatherData = await response.json();
-    renderCurrent(weatherData);
-    renderForecast(weatherData);
+    weatherAlertChecker(weatherData);
   } catch (error) {
     alert(error);
     inputAlert(error);
@@ -234,9 +233,22 @@ function windDirection(data) {
   return "N";
 }
 
+function weatherAlertChecker(data) {
+  if (!data.alerts) {
+    renderCurrent(data);
+  } else {
+    for (let i = 0; i < data.alerts.length; i++) {
+      const alert = document.createElement("h3");
+      alert.classList.add("weather-alert");
+      alert.textContent = data.alerts[i].event;
+      output.appendChild(alert);
+    }
+    renderCurrent(data);
+  }
+}
+
 // renders current weather info to DOM
 function renderCurrent(data) {
-  console.log(data);
   const current = document.createElement("div");
   current.classList.add("current");
   const description = document.createElement("h3");
@@ -269,6 +281,7 @@ function renderCurrent(data) {
   });
   current.appendChild(list);
   output.appendChild(current);
+  renderForecast(data);
 }
 
 // renders forecast to DOM
