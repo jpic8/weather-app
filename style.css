@@ -50,9 +50,14 @@ button {
 }
 
 .search-area {
-  margin-left: 75px;
+  margin-left: 5vw;
   display: grid;
+  gap: 0;
   grid-template-columns: 1.5fr 0.5fr 100px;
+}
+
+.location-name {
+  width: 180px;
 }
 
 .input-alert {
@@ -148,5 +153,9 @@ button {
     width: 90vw;
     display: flex;
     flex-wrap: wrap;
+  }
+  .location-name {
+    width: 125px;
+    margin-right: 15px;
   }
 }
