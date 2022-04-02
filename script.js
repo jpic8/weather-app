@@ -236,6 +236,7 @@ function windDirection(data) {
 
 // renders current weather info to DOM
 function renderCurrent(data) {
+  console.log(data);
   const current = document.createElement("div");
   current.classList.add("current");
   const description = document.createElement("h3");
@@ -258,6 +259,9 @@ function renderCurrent(data) {
     )}`,
     `Gust ${parseInt(data.current.wind_gust)} ${windSpeed()}`,
   ];
+  if (!data.current.wind_gust) {
+    stats.pop();
+  }
   stats.forEach(function (stat) {
     let li = document.createElement("li");
     li.textContent = stat;
