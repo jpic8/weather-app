@@ -69,7 +69,7 @@ function inputAlert(err) {
   }
 }
 
-// validates form input and forwards to appropriate geolcation URL creator
+// validates form input and forwards to appropriate geolocation URL creator
 function validateLocationForm(search) {
   const arr = search.value.split(",");
   // US default if no country code provided
@@ -219,6 +219,7 @@ function windSpeed() {
   }
 }
 
+// translates wind degree data to directional descriptor
 function windDirection(data) {
   if (data.current.wind_deg > 337.5) return "N";
   if (data.current.wind_deg > 292.5) return "NW";
@@ -235,8 +236,6 @@ function windDirection(data) {
 
 // renders current weather info to DOM
 function renderCurrent(data) {
-  console.log(data);
-  console.log(windDirection(data));
   const current = document.createElement("div");
   current.classList.add("current");
   const description = document.createElement("h3");
