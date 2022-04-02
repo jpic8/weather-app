@@ -77,11 +77,6 @@ button {
   align-items: center;
 }
 
-.weather-alert {
-  color: red;
-  margin-top: 10px;
-}
-
 @keyframes append-animate {
   from {
     transform: scale(0);
@@ -93,7 +88,14 @@ button {
   }
 }
 
+.weather-alert {
+  animation: append-animate 0.5s linear;
+  color: red;
+  margin-top: 10px;
+}
+
 .current {
+  animation: append-animate 0.5s linear;
   margin-top: 20px;
   display: grid;
   grid-template-columns: repeat(2, 135px);
