@@ -98,22 +98,29 @@ button {
   animation: append-animate 0.5s linear;
   margin-top: 20px;
   display: grid;
-  grid-template-columns: repeat(2, 135px);
+  grid-template-columns: repeat(2, 145px);
   grid-template-rows: 90px 70px;
   background-color: #bae6fd;
-  padding: 10px 20px 10px 20px;
+  padding: 10px 20px 0 10px;
   border-radius: 10px;
   border-bottom: 1px dotted black;
   border-right: 1px dotted black;
 }
 
+.current img {
+  justify-self: center;
+}
+
 .current h3 {
   grid-row-start: 2;
+  justify-self: center;
 }
 
 .weather-stats {
-  padding: 10px;
+  padding-top: 10px;
   list-style-type: none;
+  width: auto;
+  grid-row-end: auto;
 }
 
 .weather-stats li {
@@ -165,5 +172,20 @@ button {
   .location-name {
     width: 150px;
     margin-right: 10vw;
+  }
+}
+
+@media only screen and (max-width: 300px) {
+  .search-area {
+    display: flex;
+    flex-direction: column;
+  }
+  .current {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 90vw;
+    padding-bottom: 10px;
   }
 }
