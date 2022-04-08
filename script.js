@@ -15,13 +15,34 @@ locationInput.onkeydown = (e) => {
   } else if (e.keyCode === 27) {
     e.preventDefault();
     locationInput.value = "";
+    clearDOM();
+    searchInstructions();
   }
 };
+window.onload = () => searchInstructions();
 
 // utility functions
 function clearDOM() {
   while (output.firstChild) {
     output.removeChild(output.firstChild);
+  }
+}
+
+function searchInstructions() {
+  const instructDiv = document.createElement("div");
+  instructDiv.classList.add("search-instructions");
+  const message = [
+    "Please enter location with commas as separators",
+    "city, state, country*",
+    "zip code, country*",
+    "latitude, longitude",
+    "*optional, US default (ISO 3166 country codes)",
+  ];
+  for (let i = 0; i < message.length; i++) {
+    let p = document.createElement("p");
+    p.textContent = message[i];
+    instructDiv.appendChild(p);
+    output.appendChild(instructDiv);
   }
 }
 
