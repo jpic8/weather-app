@@ -51,6 +51,7 @@ button {
 }
 
 .search-area {
+  margin-left: 5vw;
   display: grid;
   gap: 0;
   grid-template-columns: 2fr 70px 30px;
@@ -161,6 +162,9 @@ button {
 }
 
 @media only screen and (max-width: 600px) {
+  .search-area {
+    margin: 0;
+  }
   .current {
     width: 90vw;
   }
