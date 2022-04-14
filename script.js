@@ -30,6 +30,7 @@ function clearDOM() {
   }
 }
 
+// append search instruction to DOM  on initial load and ESC key/clear
 function searchInstructions() {
   const instructDiv = document.createElement("div");
   instructDiv.classList.add("search-instructions");
@@ -48,26 +49,24 @@ function searchInstructions() {
   }
 }
 
-// finds location with geolocation navigator
+// finds location with navigator.geolocation API
 function findLocation() {
   if (navigator.geolocation) {
     const options = {
-      maximumAge: 600000,
-      timeout: 10000,
+      maximumAge: 10000,
+      timeout: 5000,
       enableHighAccuracy: false,
     };
     navigator.geolocation.getCurrentPosition(sendPosition, inputAlert, options);
   } else {
-    console.log("no location, sorry");
+    inputAlert(err);
   }
 }
 
+// creates array from navigator.geolocation coordinates and sends to geocoderReverse
 function sendPosition(position) {
-  console.log(position.coords.accuracy);
   const search = [position.coords.latitude, position.coords.longitude];
-  console.log(search);
   geocoderReverse(search);
-  //validateGeoForm(search);
 }
 
 // validates user input and directs to appropriate geolocation path
