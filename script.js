@@ -2,12 +2,14 @@
 
 // DOM elements
 const locationInput = document.querySelector("#location-name");
-const locationSearch = document.querySelector("#location-name-search");
+const locationSearchBtn = document.querySelector("#location-name-search");
 const output = document.querySelector(".output");
 const toggle = document.querySelector("#units");
+const geoSearchBtn = document.querySelector("#geosearch");
 
 // event listeners
-locationSearch.onclick = () => validateInput(locationInput);
+locationSearchBtn.onclick = () => validateInput(locationInput);
+geoSearchBtn.onclick = () => findLocation();
 locationInput.onkeydown = (e) => {
   if (e.keyCode === 13) {
     e.preventDefault();
@@ -44,6 +46,28 @@ function searchInstructions() {
     instructDiv.appendChild(p);
     output.appendChild(instructDiv);
   }
+}
+
+// finds location with geolocation navigator
+function findLocation() {
+  if (navigator.geolocation) {
+    const options = {
+      maximumAge: 600000,
+      timeout: 10000,
+      enableHighAccuracy: false,
+    };
+    navigator.geolocation.getCurrentPosition(sendPosition, inputAlert, options);
+  } else {
+    console.log("no location, sorry");
+  }
+}
+
+function sendPosition(position) {
+  console.log(position.coords.accuracy);
+  const search = [position.coords.latitude, position.coords.longitude];
+  console.log(search);
+  geocoderReverse(search);
+  //validateGeoForm(search);
 }
 
 // validates user input and directs to appropriate geolocation path

@@ -1,6 +1,7 @@
 /*style.css*/
 @import "./toggle.css";
 @import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+@import url("https://fonts.googleapis.com/icon?family=Material+Icons");
 
 *,
 *::after,
@@ -50,11 +51,16 @@ button {
   cursor: pointer;
 }
 
+#geosearch {
+  padding: 0;
+  border: none;
+}
+
 .search-area {
   margin-left: 5vw;
   display: grid;
   gap: 0;
-  grid-template-columns: 2fr 70px 30px;
+  grid-template-columns: 2fr 70px 52px 30px;
 }
 
 .location-name {
